@@ -144,8 +144,8 @@ public:
             BossAI::Reset();
             me->SetPosition(me->GetHomePosition());
             events.Reset();
-            events.RescheduleEvent(EVENT_MARK_CAST, 20000);
-            events.RescheduleEvent(EVENT_BERSERK, 600000);
+            events.RescheduleEvent(EVENT_MARK_CAST, 20s);
+            events.RescheduleEvent(EVENT_BERSERK, 10min);
             summons.DespawnAll(); // despawn spirits
             if ((me->GetEntry() != NPC_LADY_BLAUMEUX_40 && me->GetEntry() != NPC_SIR_ZELIEK_40))
             {
@@ -300,9 +300,9 @@ public:
     };
 };
 
-class spell_four_horsemen_mark_aura : public AuraScript
+class spell_four_horsemen_mark_aura_40 : public AuraScript
 {
-    PrepareAuraScript(spell_four_horsemen_mark_aura);
+    PrepareAuraScript(spell_four_horsemen_mark_aura_40);
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
@@ -325,7 +325,7 @@ class spell_four_horsemen_mark_aura : public AuraScript
                     damage = 4000;
                     break;
                 case 5:
-                    damage = 12000;
+                    damage = 12500;
                     break;
                 case 6:
                     damage = 20000;
@@ -358,12 +358,12 @@ class spell_four_horsemen_mark_aura : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_four_horsemen_mark_aura::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectApply += AuraEffectApplyFn(spell_four_horsemen_mark_aura_40::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
 void AddSC_boss_four_horsemen_40()
 {
     new boss_four_horsemen_40();
-    RegisterSpellScript(spell_four_horsemen_mark_aura);
+    RegisterSpellScriptWithArgs(spell_four_horsemen_mark_aura_40, "spell_four_horsemen_mark_aura");
 }

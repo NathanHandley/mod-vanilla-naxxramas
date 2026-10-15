@@ -73,8 +73,8 @@ public:
         {
             // if (Is25ManRaid())
             {
-                me->SummonCreature(NPC_CRYPT_GUARD, 3299.732f, -3502.489f, 287.077f, 2.378f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
-                me->SummonCreature(NPC_CRYPT_GUARD, 3299.086f, -3450.929f, 287.077f, 3.999f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+                me->SummonCreature(NPC_CRYPT_GUARD_40, 3299.732f, -3502.489f, 287.077f, 2.378f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+                me->SummonCreature(NPC_CRYPT_GUARD_40, 3299.086f, -3450.929f, 287.077f, 3.999f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
             }
         }
 
@@ -90,7 +90,7 @@ public:
             if (me->IsInCombat())
             {
                 cr->SetInCombatWithZone();
-                if (cr->GetEntry() == NPC_CRYPT_GUARD)
+                if (cr->GetEntry() == NPC_CRYPT_GUARD_40)
                     cr->AI()->Talk(EMOTE_SPAWN, me);
             }
             summons.Summon(cr);
@@ -98,7 +98,7 @@ public:
 
         void SummonedCreatureDies(Creature* cr, Unit*) override
         {
-            if (cr->GetEntry() == NPC_CRYPT_GUARD)
+            if (cr->GetEntry() == NPC_CRYPT_GUARD_40)
             {
                 cr->CastSpell(cr, SPELL_SUMMON_CORPSE_SCRABS_10, true, nullptr, nullptr, me->GetGUID());
                 cr->AI()->Talk(EMOTE_SCARAB);
@@ -127,13 +127,13 @@ public:
             me->CallForHelp(30.0f);
             Talk(SAY_AGGRO);
 
-            if (!summons.HasEntry(NPC_CRYPT_GUARD))
+            if (!summons.HasEntry(NPC_CRYPT_GUARD_40))
                 SummonCryptGuards();
             if (!Is25ManRaid())
             {
                 me->m_Events.AddEventAtOffset([&]
                 {
-                    me->SummonCreature(NPC_CRYPT_GUARD, 3331.217f, -3476.607f, 287.074f, 3.269f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+                    me->SummonCreature(NPC_CRYPT_GUARD_40, 3331.217f, -3476.607f, 287.074f, 3.269f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
                 }, Milliseconds(urand(15000, 20000)));
             }
 
@@ -150,7 +150,7 @@ public:
 
                 me->m_Events.AddEventAtOffset([&]
                 {
-                    me->SummonCreature(NPC_CRYPT_GUARD, 3331.217f, -3476.607f, 287.074f, 3.269f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+                    me->SummonCreature(NPC_CRYPT_GUARD_40, 3331.217f, -3476.607f, 287.074f, 3.269f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
                 }, 3s);
 
             }, 90s);

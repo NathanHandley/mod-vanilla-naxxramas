@@ -417,7 +417,10 @@ public:
                     {
                         me->CastSpell(me, SPELL_TELEPORT_LIVE, false);
                     }
-                    me->GetThreatMgr().resetAggro(NotOnSameSide(me));
+                    // Drop threat on everyone on the other side of the room (old ThreatManager::resetAggro)
+                    for (ThreatReference* ref : me->GetThreatMgr().GetModifiableThreatList())
+                        if (NotOnSameSide(me)(ref->GetVictim()))
+                            me->GetThreatMgr().ResetThreat(ref->GetVictim());
                     if (Unit* pTarget = SelectTarget(SelectTargetMethod::MaxDistance, 0))
                     {
                         me->GetThreatMgr().AddThreat(pTarget, 100.0f);
@@ -440,7 +443,7 @@ public:
                     if (gothikWaves[waveCount][0])
                     {
                         SummonHelpers(gothikWaves[waveCount][0]);
-                        events.RepeatEvent(gothikWaves[waveCount][1]);
+                        events.Repeat(Milliseconds(gothikWaves[waveCount][1]));
                     }
                     else
                     {
@@ -729,9 +732,9 @@ public:
     };
 };
 
-class spell_gothik_shadow_bolt_volley : public SpellScript
+class spell_gothik_shadow_bolt_volley_40 : public SpellScript
 {
-    PrepareSpellScript(spell_gothik_shadow_bolt_volley);
+    PrepareSpellScript(spell_gothik_shadow_bolt_volley_40);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -745,7 +748,7 @@ class spell_gothik_shadow_bolt_volley : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gothik_shadow_bolt_volley::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gothik_shadow_bolt_volley_40::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
@@ -754,5 +757,5 @@ void AddSC_boss_gothik_40()
     new boss_gothik_40();
     new npc_boss_gothik_minion_40();
     new npc_gothik_trigger_40();
-    // RegisterSpellScript(spell_gothik_shadow_bolt_volley);
+    // RegisterSpellScript(spell_gothik_shadow_bolt_volley_40);
 }

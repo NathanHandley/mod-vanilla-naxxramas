@@ -21,14 +21,14 @@
 enum NX40Spells
 {
     // Anub'Rekhan
-    SPELL_SUMMON_CORPSE_SCRABS_5       = 90001, // Changed from 29105 to Level 60 Mob ID for summon
-    SPELL_SUMMON_CORPSE_SCRABS_10      = 90002, // Changed from 29105 to Level 60 Mob ID for summon
+    SPELL_SUMMON_CORPSE_SCRABS_5       = 250001, // Changed from 29105 to Level 60 Mob ID for summon
+    SPELL_SUMMON_CORPSE_SCRABS_10      = 250002, // Changed from 29105 to Level 60 Mob ID for summon
     // Grobbulus
-    SPELL_BOMBARD_SLIME                = 90003, // update summon entry
+    SPELL_BOMBARD_SLIME                = 250003, // update summon entry
     // Loatheb
-    SPELL_SUMMON_SPORE                 = 90006,
+    SPELL_SUMMON_SPORE                 = 250006,
     // Maexxna
-    SPELL_WEB_WRAP_SUMMON_40           = 90007,  // custom summon entry: 16486 -> 351075
+    SPELL_WEB_WRAP_SUMMON_40           = 250007,  // custom summon entry: 16486 -> 250075
 
     // Heigan
     SPELL_DISRUPTION             = 55010, // 29310->55010: Mana Burn AoE spell similar to vanilla
@@ -59,66 +59,66 @@ enum NX40GOs
 enum NX40NPCs
 {
     // Anub'Rekhan
-    NPC_CORPSE_SCARAB               = 351083,
-    NPC_CRYPT_GUARD                 = 351082,
+    NPC_CORPSE_SCARAB               = 250083,
+    NPC_CRYPT_GUARD_40                 = 250082,
 
     // Faerlina
-    NPC_NAXXRAMAS_WORSHIPPER            = 351081,
-    NPC_NAXXRAMAS_FOLLOWER              = 351080,
+    NPC_NAXXRAMAS_WORSHIPPER            = 250081,
+    NPC_NAXXRAMAS_FOLLOWER              = 250080,
 
     // Gluth
-    NPC_ZOMBIE_CHOW                     = 351069,
+    NPC_ZOMBIE_CHOW                     = 250069,
 
     // Thaddius
-    NPC_THADDIUS_40                    = 351000,
-    NPC_STALAGG_40                     = 351001,
-    NPC_FEUGEN_40                      = 351002,
+    NPC_THADDIUS_40                    = 250000,
+    NPC_STALAGG_40                     = 250001,
+    NPC_FEUGEN_40                      = 250002,
 
     // Grobbulus
-    NPC_FALLOUT_SLIME                  = 351067,
-    NPC_SEWAGE_SLIME                   = 351071,
-    NPC_STICHED_GIANT                  = 351027,
+    NPC_FALLOUT_SLIME                  = 250067,
+    NPC_SEWAGE_SLIME                   = 250071,
+    NPC_STICHED_GIANT                  = 250027,
 
     // Noth
-    NPC_PLAGUED_WARRIOR                = 351087,
-    NPC_PLAGUED_CHAMPION               = 351086,
-    NPC_PLAGUED_GUARDIAN               = 351085,
+    NPC_PLAGUED_WARRIOR                = 250087,
+    NPC_PLAGUED_CHAMPION               = 250086,
+    NPC_PLAGUED_GUARDIAN               = 250085,
 
     // Razuvious
-    NPC_RAZUVIOUS_40                   = 351036,
-    NPC_DEATH_KNIGHT_UNDERSTUDY        = 351084,
+    NPC_RAZUVIOUS_40                   = 250036,
+    NPC_DEATH_KNIGHT_UNDERSTUDY        = 250084,
 
     // Gothik
-    NPC_GOTHIK_40                      = 351035,
-    NPC_LIVING_TRAINEE                 = 351043,
-    NPC_LIVING_KNIGHT                  = 351044,
-    NPC_LIVING_RIDER                   = 351045,
-    NPC_DEAD_TRAINEE                   = 351046,
-    NPC_DEAD_KNIGHT                    = 351050,
-    NPC_DEAD_HORSE                     = 351051,
-    NPC_DEAD_RIDER                     = 351052,
-    NPC_TRIGGER                        = 351047,
+    NPC_GOTHIK_40                      = 250035,
+    NPC_LIVING_TRAINEE                 = 250043,
+    NPC_LIVING_KNIGHT                  = 250044,
+    NPC_LIVING_RIDER                   = 250045,
+    NPC_DEAD_TRAINEE                   = 250046,
+    NPC_DEAD_KNIGHT                    = 250050,
+    NPC_DEAD_HORSE                     = 250051,
+    NPC_DEAD_RIDER                     = 250052,
+    NPC_TRIGGER                        = 250047,
 
     // Maexxna
-    NPC_WEB_WRAP = 351079,
-    NPC_MAEXXNA_SPIDERLING = 351088,
+    NPC_WEB_WRAP = 250079,
+    NPC_MAEXXNA_SPIDERLING = 250088,
 
     // Four horseman
-    NPC_HIGHLORD_MOGRAINE_40           = 351037,
-    NPC_SIR_ZELIEK_40                  = 351038,
-    NPC_LADY_BLAUMEUX_40               = 351040,
-    NPC_THANE_KORTHAZZ_40              = 351039,
+    NPC_HIGHLORD_MOGRAINE_40           = 250037,
+    NPC_SIR_ZELIEK_40                  = 250038,
+    NPC_LADY_BLAUMEUX_40               = 250040,
+    NPC_THANE_KORTHAZZ_40              = 250039,
 
     // Sapphiron
-    NPC_SAPPHIRON_40                   = 351018,
+    NPC_SAPPHIRON_40                   = 250018,
 
     // Kel'Thuzad
-    NPC_KELTHUZAD_40                   = 351019,
+    NPC_KELTHUZAD_40                   = 250019,
     // NPC_LICH_KING_40                   = 16980,
-    NPC_SOLDIER_OF_THE_FROZEN_WASTES   = 351073,
-    NPC_UNSTOPPABLE_ABOMINATION        = 351074,
-    NPC_SOUL_WEAVER                    = 351075,
-    NPC_GUARDIAN_OF_ICECROWN           = 351076,
+    NPC_SOLDIER_OF_THE_FROZEN_WASTES   = 250073,
+    NPC_UNSTOPPABLE_ABOMINATION        = 250074,
+    NPC_SOUL_WEAVER                    = 250075,
+    NPC_GUARDIAN_OF_ICECROWN           = 250076,
 
     // Frogger
     // NPC_LIVING_POISON_40               = 16027,
@@ -126,18 +126,18 @@ enum NX40NPCs
     // NPC_MR_BIGGLESWORTH_40             = 16998,
 
     // Patchwerk
-    NPC_PATCHWERK_40                   = 351028,
-    NPC_PATCHWORK_GOLEM_40             = 351021,
-    NPC_BILE_RETCHER_40                = 351022,
-    NPC_MAD_SCIENTIST_40               = 351023,
-    NPC_LIVING_MONSTROSITY_40          = 351024,
-    NPC_SURGICAL_ASSIST_40             = 351025,
-    NPC_SLUDGE_BELCHER_40              = 351029,
+    NPC_PATCHWERK_40                   = 250028,
+    NPC_PATCHWORK_GOLEM_40             = 250021,
+    NPC_BILE_RETCHER_40                = 250022,
+    NPC_MAD_SCIENTIST_40               = 250023,
+    NPC_LIVING_MONSTROSITY_40          = 250024,
+    NPC_SURGICAL_ASSIST_40             = 250025,
+    NPC_SLUDGE_BELCHER_40              = 250029,
 
     // Heigan
-    NPC_ROTTING_MAGGOT_40              = 351034,
-    NPC_DISEASED_MAGGOT_40             = 351033,
-    NPC_EYE_STALK_40                   = 351090,
+    NPC_ROTTING_MAGGOT_40              = 250034,
+    NPC_DISEASED_MAGGOT_40             = 250033,
+    NPC_EYE_STALK_40                   = 250090,
 
     NPC_ARCHMAGE_TARSIS                = 16381,
 };

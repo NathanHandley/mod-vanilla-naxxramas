@@ -75,9 +75,9 @@ const Position PosWrap[7] =
     {3560.282f,  -3886.143f,  321.2827f}
 };
 
-struct WebTargetSelector
+struct WebTargetSelector_40
 {
-    WebTargetSelector(Unit* maexxna) : _maexxna(maexxna) {}
+    WebTargetSelector_40(Unit* maexxna) : _maexxna(maexxna) {}
     bool operator()(Unit const* target) const
     {
         if (!target->IsPlayer()) // never web nonplayers (pets, guardians, etc.)
@@ -169,7 +169,7 @@ public:
         void DoCastWebWrap()
         {
             std::list<Unit*> candidates;
-            SelectTargetList(candidates, RAID_MODE(1, 2, 2, 2), SelectTargetMethod::Random, 0, WebTargetSelector(me));
+            SelectTargetList(candidates, RAID_MODE(1, 2, 2, 2), SelectTargetMethod::Random, 0, WebTargetSelector_40(me));
 
             std::vector<uint32> positions {0, 1, 2, 3, 4, 5, 6};
             Acore::Containers::RandomShuffle(positions);
@@ -335,10 +335,10 @@ public:
     };
 };
 
-class spell_web_wrap_damage : public AuraScript
+class spell_web_wrap_damage_40 : public AuraScript
 {
 public:
-    PrepareAuraScript(spell_web_wrap_damage);
+    PrepareAuraScript(spell_web_wrap_damage_40);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -358,7 +358,7 @@ public:
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_web_wrap_damage::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_web_wrap_damage_40::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
@@ -366,5 +366,5 @@ void AddSC_boss_maexxna_40()
 {
     new boss_maexxna_40();
     new boss_maexxna_webwrap_40();
-    RegisterSpellScript(spell_web_wrap_damage);
+    RegisterSpellScriptWithArgs(spell_web_wrap_damage_40, "spell_web_wrap_damage");
 }

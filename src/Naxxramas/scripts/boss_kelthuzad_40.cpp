@@ -403,14 +403,14 @@ public:
                 case EVENT_DETONATE_MANA:
                     {
                         std::vector<Unit*> unitList;
-                        ThreatContainer::StorageType const& threatList = me->GetThreatMgr().GetThreatList();
-                        for (auto itr : threatList)
+                        for (ThreatReference const* ref : me->GetThreatMgr().GetUnsortedThreatList())
                         {
-                            if (itr->getTarget()->IsPlayer()
-                                    && itr->getTarget()->getPowerType() == POWER_MANA
-                                    && itr->getTarget()->GetPower(POWER_MANA))
+                            Unit* target = ref->GetVictim();
+                            if (target->IsPlayer()
+                                    && target->getPowerType() == POWER_MANA
+                                    && target->GetPower(POWER_MANA))
                                     {
-                                        unitList.push_back(itr->getTarget());
+                                        unitList.push_back(target);
                                     }
                         }
                         if (!unitList.empty())
@@ -451,7 +451,7 @@ public:
                         cr->AI()->Talk(SAY_ANSWER_REQUEST);
 
                     for (uint8 i = 0 ; i < RAID_MODE(2, 4, 4, 4); ++i)
-                        events.ScheduleEvent(EVENT_SUMMON_GUARDIAN_OF_ICECROWN, 10000 + (i * 5000));
+                        events.ScheduleEvent(EVENT_SUMMON_GUARDIAN_OF_ICECROWN, Milliseconds(10000 + (i * 5000)));
 
                     break;
                 }
@@ -507,7 +507,7 @@ public:
             {
                 if (!me->IsInCombat())
                 {
-                    me->DespawnOrUnsummon(500);
+                    me->DespawnOrUnsummon(500ms);
                 }
             }
             if (param == ACTION_GUARDIANS_OFF)
@@ -618,9 +618,9 @@ public:
     };
 };
 
-class spell_kelthuzad_frost_blast : public SpellScript
+class spell_kelthuzad_frost_blast_40 : public SpellScript
 {
-    PrepareSpellScript(spell_kelthuzad_frost_blast);
+    PrepareSpellScript(spell_kelthuzad_frost_blast_40);
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
@@ -650,13 +650,13 @@ class spell_kelthuzad_frost_blast : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_kelthuzad_frost_blast::FilterTargets, EFFECT_ALL, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_kelthuzad_frost_blast_40::FilterTargets, EFFECT_ALL, TARGET_UNIT_DEST_AREA_ENEMY);
     }
 };
 
-class spell_kelthuzad_detonate_mana_aura : public AuraScript
+class spell_kelthuzad_detonate_mana_aura_40 : public AuraScript
 {
-    PrepareAuraScript(spell_kelthuzad_detonate_mana_aura);
+    PrepareAuraScript(spell_kelthuzad_detonate_mana_aura_40);
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
@@ -676,7 +676,7 @@ class spell_kelthuzad_detonate_mana_aura : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_kelthuzad_detonate_mana_aura::HandleScript, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_kelthuzad_detonate_mana_aura_40::HandleScript, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
@@ -684,6 +684,6 @@ void AddSC_boss_kelthuzad_40()
 {
     new boss_kelthuzad_40();
     new boss_kelthuzad_minion_40();
-    // RegisterSpellScript(spell_kelthuzad_frost_blast);
-    // RegisterSpellScript(spell_kelthuzad_detonate_mana_aura);
+    // RegisterSpellScript(spell_kelthuzad_frost_blast_40);
+    // RegisterSpellScript(spell_kelthuzad_detonate_mana_aura_40);
 }

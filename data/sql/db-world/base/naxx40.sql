@@ -1,6 +1,6 @@
 -- Custom GUIDs
--- creature 352042
--- creature_template 351097
+-- creature 1502042
+-- creature_template 250097
 -- Add MapDifficulty DBC Override
 -- https://wow.tools/dbc/?dbc=mapdifficulty&build=10.0.0.44895#page=1&search=533
 DELETE FROM `mapdifficulty_dbc` WHERE `ID` = 754;
@@ -29,9 +29,9 @@ UPDATE `creature` SET `spawnMask` = 3 WHERE `spawnMask` = 7 AND `map` = 533;
 -- Update spawnMask of all gameobjects to all
 UPDATE `gameobject` SET `spawnMask` = 7 WHERE `spawnMask` = 3 AND `map` = 533;
 -- Lich King uses same entry in Naxx WotLK and Naxx40 - Allow spawning in all versions
-UPDATE `creature` SET `spawnMask` = `spawnMask` | 4 WHERE `id1` = 16980;
+UPDATE `creature` SET `spawnMask` = `spawnMask` | 4 WHERE `id` = 16980;
 -- Naxxramas Trigger (frogger) should also spawn in Naxx40
-UPDATE `creature` SET `spawnMask` = `spawnMask`| 4 WHERE `id1` = 16082;
+UPDATE `creature` SET `spawnMask` = `spawnMask`| 4 WHERE `id` = 16082;
 -- Orb of Naxxramas does not exist in classic
 UPDATE `gameobject` SET `spawnMask` = 3 WHERE `id` IN (202278, 202277);
 
@@ -63,18 +63,18 @@ INSERT INTO `dungeonencounter_dbc` (`ID`, `MapID`, `Difficulty`, `OrderIndex`, `
 
 DELETE FROM `instance_encounters` WHERE `entry` BETWEEN 1001 AND 1015;
 INSERT INTO `instance_encounters` (`entry`, `creditType`, `creditEntry`, `lastEncounterDungeon`, `comment`) VALUES
-(1001, 0, 351009, 0, 'Anub''Rekhan'),
-(1002, 0, 351007, 0, 'Grand Widow Faerlina'),
-(1003, 0, 351006, 0, 'Maexxna'),
-(1004, 0, 351008, 0, 'Noth the Plaguebringer'),
-(1005, 0, 351005, 0, 'Heigan the Unclean'),
-(1006, 0, 351020, 0, 'Loatheb'),
-(1007, 0, 351036, 0, 'Instructor Razuvious'),
-(1008, 0, 351035, 0, 'Gothik the Harvester'),
+(1001, 0, 250009, 0, 'Anub''Rekhan'),
+(1002, 0, 250007, 0, 'Grand Widow Faerlina'),
+(1003, 0, 250006, 0, 'Maexxna'),
+(1004, 0, 250008, 0, 'Noth the Plaguebringer'),
+(1005, 0, 250005, 0, 'Heigan the Unclean'),
+(1006, 0, 250020, 0, 'Loatheb'),
+(1007, 0, 250036, 0, 'Instructor Razuvious'),
+(1008, 0, 250035, 0, 'Gothik the Harvester'),
 (1009, 1, 59450, 0, 'The Four Horsemen'),
-(1010, 0, 351028, 0, 'Patchwerk'),
-(1011, 0, 351003, 0, 'Grobbulus'),
-(1012, 0, 351004, 0, 'Gluth'),
-(1013, 0, 351000, 0, 'Thaddius'),
-(1014, 0, 351018, 0, 'Sapphiron'),
-(1015, 0, 351019, 0, 'Kel''Thuzad');
+(1010, 0, 250028, 0, 'Patchwerk'),
+(1011, 0, 250003, 0, 'Grobbulus'),
+(1012, 0, 250004, 0, 'Gluth'),
+(1013, 0, 250000, 0, 'Thaddius'),
+(1014, 0, 250018, 0, 'Sapphiron'),
+(1015, 0, 250019, 0, 'Kel''Thuzad');

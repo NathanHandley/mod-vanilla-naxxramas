@@ -115,7 +115,7 @@ public:
             me->SetInCombatWithZone();
             events.ScheduleEvent(EVENT_MORTAL_WOUND, 10s);
             events.ScheduleEvent(EVENT_ENRAGE, 22s);
-            events.ScheduleEvent(EVENT_DECIMATE, RAID_MODE(110000, 90000, 110000, 90000));
+            events.ScheduleEvent(EVENT_DECIMATE, RAID_MODE(110s, 90s, 110s, 90s));
             events.ScheduleEvent(EVENT_BERSERK, 6min);
             events.ScheduleEvent(EVENT_SUMMON_ZOMBIE, 10s);
             events.ScheduleEvent(EVENT_CAN_EAT_ZOMBIE, 1s);
@@ -219,7 +219,7 @@ public:
                             }
                         }
                     }
-                    events.RepeatEvent(105000);
+                    events.Repeat(105s);
                     break;
                 case EVENT_SUMMON_ZOMBIE:
                     {
@@ -243,7 +243,7 @@ public:
                         break;
                     }
                 case EVENT_CAN_EAT_ZOMBIE:
-                    events.RepeatEvent(1000);
+                    events.Repeat(1s);
                     if (me->GetVictim()->GetEntry() == NPC_ZOMBIE_CHOW && me->IsWithinMeleeRange(me->GetVictim()))
                     {
                         me->CastCustomSpell(SPELL_CHOW_SEARCHER, SPELLVALUE_RADIUS_MOD, 20000, me, true);
@@ -257,43 +257,8 @@ public:
     };
 };
 
-class spell_gluth_decimate : public SpellScript
-{
-    PrepareSpellScript(spell_gluth_decimate);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DECIMATE_DAMAGE });
-    }
-
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* unitTarget = GetHitUnit())
-        {
-            int32 damage = int32(unitTarget->GetHealth()) - int32(unitTarget->CountPctFromMaxHealth(5));
-            if (damage <= 0)
-                return;
-
-            if (Creature* cTarget = unitTarget->ToCreature())
-            {
-                cTarget->SetWalk(true);
-                cTarget->GetMotionMaster()->MoveFollow(GetCaster(), 0.0f, 0.0f, MOTION_SLOT_CONTROLLED);
-                cTarget->SetReactState(REACT_PASSIVE);
-                Unit::DealDamage(GetCaster(), cTarget, damage);
-                return;
-            }
-            GetCaster()->CastCustomSpell(SPELL_DECIMATE_DAMAGE, SPELLVALUE_BASE_POINT0, damage, unitTarget);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_gluth_decimate::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
 
 void AddSC_boss_gluth_40()
 {
     new boss_gluth_40();
-    RegisterSpellScript(spell_gluth_decimate);
 }

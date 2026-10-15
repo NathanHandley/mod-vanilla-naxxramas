@@ -1,14 +1,14 @@
 /*
  * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Affero General Public License as published by the
- * Free Software Foundation; either version 3 of the License, or (at your
- * option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
@@ -34,7 +34,8 @@ enum Spells
     // Fight
     SPELL_FROST_AURA                = 28531,
     SPELL_CLEAVE                    = 19983,
-    SPELL_TAIL_SWEEP                = 15847,
+    SPELL_TAIL_SWEEP                = 55697,
+    SPELL_TAIL_SWEEP_40             = 15847,
     SPELL_SUMMON_BLIZZARD           = 28560,
     SPELL_LIFE_DRAIN                = 28542,
     SPELL_BERSERK                   = 26662,
@@ -47,14 +48,6 @@ enum Spells
 
     // Visuals
     SPELL_SAPPHIRON_DIES            = 29357,
-
-    // 10 and 25 Man Spells
-    SPELL_FROST_AURA_10             = 28531,
-    SPELL_FROST_AURA_25             = 55799,
-    SPELL_TAIL_SWEEP_10             = 55697,
-    SPELL_TAIL_SWEEP_25             = 55696,
-    SPELL_LIFE_DRAIN_10             = 28542,
-    SPELL_LIFE_DRAIN_25             = 55665,
 };
 
 enum Misc
@@ -143,6 +136,7 @@ public:
             spawnTimer = 0;
             currentTarget.Clear();
             blockList.clear();
+            me->SetAnimTier(AnimTier::Fly);
         }
 
         void EnterCombatSelfFunction()
@@ -172,10 +166,7 @@ public:
         {
             BossAI::JustEngagedWith(who);
             EnterCombatSelfFunction();
-            if (isNaxx40Sapp(me->GetEntry()))
-                me->CastSpell(me, SPELL_FROST_AURA, true);
-            else
-                me->CastSpell(me, RAID_MODE(SPELL_FROST_AURA_10, SPELL_FROST_AURA_25), true);
+            me->CastSpell(me, SPELL_FROST_AURA, true);
             events.ScheduleEvent(EVENT_BERSERK, 15min);
             events.ScheduleEvent(EVENT_CLEAVE, 5s);
             events.ScheduleEvent(EVENT_TAIL_SWEEP, 10s);
@@ -273,7 +264,10 @@ public:
                     events.Repeat(10s);
                     return;
                 case EVENT_TAIL_SWEEP:
-                    me->CastSpell(me, RAID_MODE(SPELL_TAIL_SWEEP_10, SPELL_TAIL_SWEEP_25, SPELL_TAIL_SWEEP, SPELL_TAIL_SWEEP_25), false);
+                    if (isNaxx40Sapp(me->GetEntry()))
+                        me->CastSpell(me, SPELL_TAIL_SWEEP_40, false);
+                    else
+                        me->CastSpell(me, SPELL_TAIL_SWEEP, false);
                     events.Repeat(10s);
                     return;
                 case EVENT_LIFE_DRAIN:
@@ -287,7 +281,7 @@ public:
                     }
                     else
                     {
-                        me->CastCustomSpell(RAID_MODE(SPELL_LIFE_DRAIN_10, SPELL_LIFE_DRAIN_25), SPELLVALUE_MAX_TARGETS, RAID_MODE(2, 5), me, false);
+                        me->CastCustomSpell(SPELL_LIFE_DRAIN, SPELLVALUE_MAX_TARGETS, RAID_MODE(2, 5), me, false);
                     }
                     events.Repeat(24s);
                     return;
@@ -306,7 +300,7 @@ public:
                         {
                             cr->GetMotionMaster()->MoveRandom(40);
                         }
-                        events.RepeatEvent(RAID_MODE(8000, 6500, 6500, 6500));
+                        events.Repeat(RAID_MODE(8000ms, 6500ms, 6500ms, 6500ms));
                         return;
                     }
                 case EVENT_FLIGHT_START:
@@ -320,7 +314,7 @@ public:
                     me->AttackStop();
                     float x, y, z, o;
                     me->GetHomePosition(x, y, z, o);
-                    me->GetMotionMaster()->MovePoint(POINT_CENTER, x, y, z);
+                    me->GetMotionMaster()->MovePoint(POINT_CENTER, x, y, z, FORCED_MOVEMENT_NONE, 0.f, o);
                     return;
                 case EVENT_FLIGHT_LIFTOFF:
                     Talk(EMOTE_AIR_PHASE);
@@ -343,17 +337,17 @@ public:
                         }
 
                         std::vector<Unit*> targets;
-                        auto i = me->GetThreatMgr().GetThreatList().begin();
-                        for (; i != me->GetThreatMgr().GetThreatList().end(); ++i)
+                        auto i = me->GetThreatMgr().GetUnsortedThreatList().begin();
+                        for (; i != me->GetThreatMgr().GetUnsortedThreatList().end(); ++i)
                         {
-                            if ((*i)->getTarget()->IsPlayer())
+                            if ((*i)->GetVictim()->IsPlayer())
                             {
                                 bool inList = false;
                                 if (!blockList.empty())
                                 {
                                     for (GuidList::const_iterator itr = blockList.begin(); itr != blockList.end(); ++itr)
                                     {
-                                        if ((*i)->getTarget()->GetGUID() == *itr)
+                                        if ((*i)->GetVictim()->GetGUID() == *itr)
                                         {
                                             inList = true;
                                             break;
@@ -362,7 +356,7 @@ public:
                                 }
                                 if (!inList)
                                 {
-                                    targets.push_back((*i)->getTarget());
+                                    targets.push_back((*i)->GetVictim());
                                 }
                             }
                         }
@@ -375,7 +369,7 @@ public:
                             blockList.push_back((*itr)->GetGUID());
                             currentTarget = (*itr)->GetGUID();
                             --iceboltCount;
-                            events.ScheduleEvent(EVENT_FLIGHT_ICEBOLT, (me->GetExactDist(*itr) / 13.0f)*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_FLIGHT_ICEBOLT, Seconds(uint32(me->GetExactDist(*itr) / 13.0f)));
                         }
                         else
                         {
@@ -439,9 +433,9 @@ public:
 };
 
 // This will overwrite the declared 10 and 25 man frost explosion to handle all versions of the spell script
-class spell_sapphiron_frost_explosion : public SpellScript
+class spell_sapphiron_frost_explosion_40 : public SpellScript
 {
-    PrepareSpellScript(spell_sapphiron_frost_explosion);
+    PrepareSpellScript(spell_sapphiron_frost_explosion_40);
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
@@ -466,12 +460,12 @@ class spell_sapphiron_frost_explosion : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sapphiron_frost_explosion::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sapphiron_frost_explosion_40::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
     }
 };
 
 void AddSC_boss_sapphiron_40()
 {
     new boss_sapphiron_40();
-    RegisterSpellScript(spell_sapphiron_frost_explosion);
+    RegisterSpellScriptWithArgs(spell_sapphiron_frost_explosion_40, "spell_sapphiron_frost_explosion");
 }

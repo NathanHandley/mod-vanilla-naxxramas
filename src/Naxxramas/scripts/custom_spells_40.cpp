@@ -2,6 +2,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "naxxramas.h"
 
@@ -45,46 +46,29 @@ class spell_anub_locust_swarm_aura_40 : public AuraScript
 
 // 28865 - Consumption
 // add Naxx10HC damage
-class spell_gen_consumption : public SpellScript
+class spell_gen_consumption_40 : public SpellScript
 {
-    PrepareSpellScript(spell_gen_consumption);
+    PrepareSpellScript(spell_gen_consumption_40);
 
-    void CalculateDamage(SpellEffIndex /*effIndex*/)
+    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
     {
-        Map* map = GetCaster()->GetMap();
-        if (!map)
-        {
+        Unit* caster = GetCaster();
+        if (!caster || !caster->IsCreature())
             return;
-        }
-        int32 value = 0;
-        if (map->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL) // NAXX25 N
-        {
-            value = urand(4500, 4700);
-        }
-        else if (map->GetId() == 533) // NAXX10 N
-        {
-            if (map->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
-            {
-                value = urand(3000, 3200);
-            }
-            else
-            {
-                value = urand(3960, 4840); // NAXX40
-            }
-        }
-        else if (map->GetId() == 532) // Karazhan
-        {
-            value = urand(1110, 1310);
-        }
-        if (value)
-        {
-            SetEffectValue(value);
-        }
+
+        int32 damage = 0;
+        if (caster->GetMap()->GetId() == 533 && caster->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_HEROIC)
+            damage = urand(3960, 4840); // NAXX40
+        else if (SpellInfo const* createdBySpell = sSpellMgr->GetSpellInfo(caster->GetUInt32Value(UNIT_CREATED_BY_SPELL)))
+            damage = createdBySpell->Effects[EFFECT_1].CalcValue(); // same as core spell_gen_consumption
+
+        if (damage)
+            SetEffectValue(damage);
     }
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_gen_consumption::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectLaunchTarget += SpellEffectFn(spell_gen_consumption_40::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -359,7 +343,7 @@ class spell_feugen_static_field_40 : public SpellScript
 void AddSC_custom_spells_40()
 {
     RegisterSpellScript(spell_anub_locust_swarm_aura_40);
-    RegisterSpellScript(spell_gen_consumption);
+    RegisterSpellScriptWithArgs(spell_gen_consumption_40, "spell_gen_consumption");
     RegisterSpellScript(spell_grobbulus_poison_cloud_poison_damage_40);
     RegisterSpellScript(spell_heigan_plague_cloud_aura_40);
     RegisterSpellScript(spell_heigan_eruption_40);

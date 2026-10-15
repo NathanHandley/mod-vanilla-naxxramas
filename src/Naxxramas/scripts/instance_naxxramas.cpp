@@ -1,14 +1,14 @@
 /*
  * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Affero General Public License as published by the
- * Free Software Foundation; either version 3 of the License, or (at your
- * option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
@@ -25,18 +25,38 @@
 #include "Player.h"
 #include "naxxramas.h"
 
-struct LivingPoisonData
+BossBoundaryData const boundaries =
 {
-    Position Start {};
-    Position End {};
-    uint32 DespawnTime {};
-};
+    /* Arachnid Quarter */
+    { BOSS_ANUB,      new CircleBoundary(Position(3273.376709f, -3475.876709f), Position(3195.668213f, -3475.930176f)) },
+    { BOSS_FAERLINA,  new RectangleBoundary(3315.0f, 3402.0f, -3727.0f, -3590.0f) },
+    { BOSS_FAERLINA,  new CircleBoundary(Position(3372.68f, -3648.2f), Position(3316.0f, -3704.26f)) },
+    { BOSS_MAEXXNA,   new CircleBoundary(Position(3502.2587f, -3892.1697f), Position(3418.7422f, -3840.271f)) },
 
-static const LivingPoisonData LivingPoisonDataList[3]
-{
-    { Position { 3128.59, -3118.81, 293.346, 4.76754 }, Position { 3130.322, -3156.51,  293.324 }, 15200 },
-    { Position { 3154.25, -3125.7,  293.43,  4.47694 }, Position { 3144.779, -3158.416, 293.324 }, 14800 },
-    { Position { 3175.42, -3134.86, 293.34,  4.284   }, Position { 3158.778, -3164.201, 293.312 }, 14800 }
+    /* Plague Quarter */
+    { BOSS_NOTH,      new RectangleBoundary(2618.0f, 2754.0f, -3557.43f, -3450.0f) },
+    { BOSS_HEIGAN,    new CircleBoundary(Position(2772.57f, -3685.28f), 56.0f) },
+    { BOSS_HEIGAN,    new RectangleBoundary(2723.0f, 2826.0f, -3736.0f, -3641.0f) },
+    { BOSS_LOATHEB,   new CircleBoundary(Position(2909.0f, -3997.41f), 57.0f) },
+
+    /* Military Quarter */
+    { BOSS_RAZUVIOUS, new ZRangeBoundary(260.0f, 287.0f) }, // will not chase onto the upper floor
+    { BOSS_GOTHIK,    new RectangleBoundary(2627.0f, 2764.0f, -3440.0f, -3275.0f) },
+    { BOSS_HORSEMAN,  new ParallelogramBoundary(Position(2646.0f, -2959.0f), Position(2529.0f, -3075.0f), Position(2506.0f, -2854.0f)) },
+
+    /* Construct Quarter */
+    { BOSS_PATCHWERK, new CircleBoundary(Position(3204.0f, -3241.4f), 240.0f) },
+    { BOSS_PATCHWERK, new CircleBoundary(Position(3130.8576f, -3210.36f), Position(3085.37f, -3219.85f), true) }, // entrance slime circle blocker
+    { BOSS_GROBBULUS, new CircleBoundary(Position(3204.0f, -3241.4f), 240.0f) },
+    { BOSS_GROBBULUS, new RectangleBoundary(3295.0f, 3340.0f, -3254.2f, -3230.18f, true) }, // entrance door blocker
+    { BOSS_GLUTH,     new CircleBoundary(Position(3293.0f, -3142.0f), 80.0) },
+    { BOSS_GLUTH,     new ParallelogramBoundary(Position(3401.0f, -3149.0f), Position(3261.0f, -3028.0f), Position(3320.0f, -3267.0f)) },
+    { BOSS_GLUTH,     new ZRangeBoundary(285.0f, 310.0f) },
+    { BOSS_THADDIUS,  new ParallelogramBoundary(Position(3478.3f, -3070.0f), Position(3370.0f, -2961.5f), Position(3580.0f, -2961.5f)) },
+
+    /* Frostwyrm Lair */
+    { BOSS_SAPPHIRON, new CircleBoundary(Position(3517.627f, -5255.5f), 110.0) },
+    { BOSS_KELTHUZAD, new CircleBoundary(Position(3716.0f, -5107.0f), 85.0) }
 };
 
 static const float HeiganPos[2]
@@ -57,11 +77,6 @@ static constexpr std::array<uint32, HorsemanCount> HorsemanDataGroup
     DATA_SIR_ZELIEK_BOSS,
     DATA_LADY_BLAUMEUX_BOSS,
     DATA_THANE_KORTHAZZ_BOSS
-};
-
-static WorldLocation const SapphironTeleportPos
-{
-    NaxxramasMapId, 3498.300049f, -5349.490234f, 144.968002f, 1.3698910f
 };
 
 static DoorData const doorData[]
@@ -110,6 +125,7 @@ static ObjectData const creatureData[]
     { NPC_THADDIUS,        DATA_THADDIUS_BOSS        },
     { NPC_RAZUVIOUS,       DATA_RAZUVIOUS_BOSS       },
     { NPC_GOTHIK,          DATA_GOTHIK_BOSS          },
+    { NPC_HEIGAN,          DATA_HEIGAN_BOSS          },
     { NPC_BARON_RIVENDARE, DATA_BARON_RIVENDARE_BOSS },
     { NPC_SIR_ZELIEK,      DATA_SIR_ZELIEK_BOSS      },
     { NPC_LADY_BLAUMEUX,   DATA_LADY_BLAUMEUX_BOSS   },
@@ -156,16 +172,17 @@ static ObjectData const gameObjectData[]
     { 0,                     0                       }
 };
 
-class instance_naxxramas : public InstanceScript
+class instance_naxxramas_40 : public InstanceScript
 {
 public:
-    instance_naxxramas(Map* map) : InstanceScript(map)
+    instance_naxxramas_40(Map* map) : InstanceScript(map)
     {
         SetHeaders(DataHeader);
         SetBossNumber(MAX_ENCOUNTERS);
         SetPersistentDataCount(PERSISTENT_DATA_COUNT);
         LoadDoorData(doorData);
         LoadObjectData(creatureData, gameObjectData);
+        LoadBossBoundaries(boundaries);
 
         // NX40 specific data
         if (instance->GetDifficulty() == RAID_DIFFICULTY_10MAN_HEROIC)
@@ -183,6 +200,7 @@ public:
         _events.Reset();
         _currentWingTaunt = SAY_FIRST_WING_TAUNT;
         _horsemanLoaded = 0;
+        _thaddiusScreamsScheduled = false;
 
         // Achievements
         _abominationsKilled = 0;
@@ -258,7 +276,11 @@ public:
     {
         InstanceScript::OnPlayerEnter(player);
 
-        _events.ScheduleEvent(EVENT_THADDIUS_SCREAMS, 2min, 2min + 30s);
+        if (!_thaddiusScreamsScheduled)
+        {
+            _thaddiusScreamsScheduled = true;
+            _events.ScheduleEvent(EVENT_THADDIUS_SCREAMS, 2min, 2min + 30s);
+        }
     }
 
     void OnCreatureCreate(Creature* creature) override
@@ -425,20 +447,49 @@ public:
             case ACHIEV_CRITERIA_THE_HUNDRED_CLUB_25_PLAYER:
                 return _sapphironAchievement;
             case ACHIEV_CRITERIA_THE_UNDYING_KELTHUZAD:
-            case ACHIEV_CRITERIA_THE_UNDYING_THE_FOUR_HORSEMEN:
-            case ACHIEV_CRITERIA_THE_UNDYING_MAEXXNA:
-            case ACHIEV_CRITERIA_THE_UNDYING_LOATHEB:
-            case ACHIEV_CRITERIA_THE_UNDYING_THADDIUS:
             case ACHIEV_CRITERIA_THE_IMMORTAL_KELTHUZAD:
+            case ACHIEV_CRITERIA_THE_UNDYING_THE_FOUR_HORSEMEN:
             case ACHIEV_CRITERIA_THE_IMMORTAL_THE_FOUR_HORSEMEN:
+            case ACHIEV_CRITERIA_THE_UNDYING_MAEXXNA:
             case ACHIEV_CRITERIA_THE_IMMORTAL_MAEXXNA:
+            case ACHIEV_CRITERIA_THE_UNDYING_LOATHEB:
             case ACHIEV_CRITERIA_THE_IMMORTAL_LOATHEB:
+            case ACHIEV_CRITERIA_THE_UNDYING_THADDIUS:
             case ACHIEV_CRITERIA_THE_IMMORTAL_THADDIUS:
-                for (int i = 0; i < MAX_ENCOUNTERS; ++i)
-                    if (GetBossState(i) != DONE)
+            {
+                uint32 currentBoss;
+                switch (criteria_id)
+                {
+                    case ACHIEV_CRITERIA_THE_UNDYING_KELTHUZAD:
+                    case ACHIEV_CRITERIA_THE_IMMORTAL_KELTHUZAD:
+                        currentBoss = BOSS_KELTHUZAD;
+                        break;
+                    case ACHIEV_CRITERIA_THE_UNDYING_THE_FOUR_HORSEMEN:
+                    case ACHIEV_CRITERIA_THE_IMMORTAL_THE_FOUR_HORSEMEN:
+                        currentBoss = BOSS_HORSEMAN;
+                        break;
+                    case ACHIEV_CRITERIA_THE_UNDYING_MAEXXNA:
+                    case ACHIEV_CRITERIA_THE_IMMORTAL_MAEXXNA:
+                        currentBoss = BOSS_MAEXXNA;
+                        break;
+                    case ACHIEV_CRITERIA_THE_UNDYING_LOATHEB:
+                    case ACHIEV_CRITERIA_THE_IMMORTAL_LOATHEB:
+                        currentBoss = BOSS_LOATHEB;
+                        break;
+                    case ACHIEV_CRITERIA_THE_UNDYING_THADDIUS:
+                    case ACHIEV_CRITERIA_THE_IMMORTAL_THADDIUS:
+                        currentBoss = BOSS_THADDIUS;
+                        break;
+                    default:
+                        return false;
+                }
+
+                for (uint32 i = 0; i < MAX_ENCOUNTERS; ++i)
+                    if (i != currentBoss && GetBossState(i) != DONE)
                         return false;
 
                 return !GetPersistentData(PERSISTENT_DATA_IMMORTAL_FAIL);
+            }
             default:
                 return false;
         }
@@ -486,11 +537,14 @@ public:
                 // pull all the trash if not killed
                 if (Creature* patchwerk = GetCreature(DATA_PATCHWERK_BOSS))
                 {
-                    for (auto& itr : _patchwerkRoomTrash)
+                    if (Unit* target = patchwerk->GetThreatMgr().GetCurrentVictim())
                     {
-                        Creature* trash = ObjectAccessor::GetCreature(*patchwerk, itr);
-                        if (trash && trash->IsAlive() && !trash->IsInCombat())
-                            trash->AI()->AttackStart(patchwerk->GetVictim());
+                        for (auto& itr : _patchwerkRoomTrash)
+                        {
+                            Creature* trash = ObjectAccessor::GetCreature(*patchwerk, itr);
+                            if (trash && trash->IsAlive() && !trash->IsInCombat())
+                                trash->AI()->AttackStart(target);
+                        }
                     }
                 }
 
@@ -566,6 +620,7 @@ public:
                     case NOT_STARTED:
                     {
                         _horsemanAchievement = true;
+                        _events.CancelEvent(EVENT_AND_THEY_WOULD_ALL_GO_DOWN_TOGETHER);
 
                         if (!horsemanKilled)
                             break;
@@ -591,12 +646,17 @@ public:
                     }
                     case DONE:
                     {
+                        if (!horsemanKilled) // if no horsemen are found, assume wing is cleared
+                        {
+                            ActivateWingPortal(DATA_HORSEMAN_PORTAL);
+                            break;
+                        }
+
                         _events.RescheduleEvent(EVENT_AND_THEY_WOULD_ALL_GO_DOWN_TOGETHER, 15s);
 
                         if (horsemanKilled != HorsemanCount)
                             return false;
 
-                        // all horsemans are killed
                         if (Creature* cr = GetCreature(DATA_BARON_RIVENDARE_BOSS))
                             cr->CastSpell(cr, SPELL_THE_FOUR_HORSEMAN_CREDIT, true);
 
@@ -658,7 +718,7 @@ public:
                     break;
 
                 instance->PlayDirectSoundToMap(SOUND_SCREAM + urand(0, 3));
-                return _events.ScheduleEvent(EVENT_THADDIUS_SCREAMS, 2min, 2min + 30s);
+                return _events.ScheduleEvent(EVENT_THADDIUS_SCREAMS, 5min, 10min);
             }
             case EVENT_AND_THEY_WOULD_ALL_GO_DOWN_TOGETHER:
                 _horsemanAchievement = false;
@@ -690,7 +750,9 @@ public:
                 return CreatureTalk(DATA_BARON_RIVENDARE_BOSS, SAY_HORSEMEN_DIALOG2);
             case EVENT_FROSTWYRM_WATERFALL_DOOR:
                 SetGoState(DATA_SAPPHIRON_GATE, GO_STATE_ACTIVE);
-                return _events.ScheduleEvent(EVENT_KELTHUZAD_LICH_KING_TALK1, 5s);
+                if (GetBossState(BOSS_KELTHUZAD) != DONE)
+                    _events.ScheduleEvent(EVENT_KELTHUZAD_LICH_KING_TALK1, 5s);
+                break;
             case EVENT_KELTHUZAD_LICH_KING_TALK1:
                 CreatureTalk(DATA_KELTHUZAD_BOSS, SAY_SAPP_DIALOG1);
                 return _events.ScheduleEvent(EVENT_KELTHUZAD_LICH_KING_TALK2, 10s);
@@ -719,6 +781,7 @@ private:
     EventMap _events;
     uint8 _currentWingTaunt;
     uint8 _horsemanLoaded;
+    bool _thaddiusScreamsScheduled;
 
     // GameObjects
     std::set<GameObject*> _heiganEruption[HeiganEruptSectionCount];
@@ -737,104 +800,9 @@ private:
     bool _horsemanAchievement;
 };
 
-class npc_mr_bigglesworth : public NullCreatureAI
+// Registered under core's "instance_naxxramas" script name so it replaces the core instance script for every
+// Naxxramas difficulty. Core still registers its own Mr. Bigglesworth, Living Poison, trigger and hub portal scripts.
+void AddSC_instance_naxxramas_40()
 {
-public:
-    npc_mr_bigglesworth(Creature* c) : NullCreatureAI(c) { }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        InstanceScript* instance = me->GetInstanceScript();
-        if (!instance)
-            return;
-
-        Creature* kelThuzard = instance->GetCreature(DATA_KELTHUZAD_BOSS);
-        if (!kelThuzard)
-            return;
-
-        kelThuzard->AI()->Talk(SAY_CAT_DIED);
-    }
-};
-
-class npc_living_poison : public NullCreatureAI
-{
-public:
-    npc_living_poison(Creature* c) : NullCreatureAI(c) { }
-
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (me->SelectNearestTarget(1.5f, true))
-            me->CastSpell(me, SPELL_EXPLODE, true);
-    }
-};
-
-class npc_naxxramas_trigger : public NullCreatureAI
-{
-public:
-    npc_naxxramas_trigger(Creature* c) : NullCreatureAI(c) { }
-
-    void Reset() override
-    {
-        _events.Reset();
-        _events.ScheduleEvent(EVENT_SUMMON_LIVING_POISON, 5s);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _events.Update(diff);
-        switch (_events.ExecuteEvent())
-        {
-            case EVENT_SUMMON_LIVING_POISON:
-            {
-                for (LivingPoisonData const& entry : LivingPoisonDataList)
-                    if (Creature* cr = me->SummonCreature(NPC_LIVING_POISON, entry.Start, TEMPSUMMON_TIMED_DESPAWN, entry.DespawnTime))
-                    {
-                        cr->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                        cr->GetMotionMaster()->MovePoint(0, entry.End, false);
-                    }
-
-                _events.Repeat(5s);
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
-private:
-    EventMap _events;
-};
-
-class at_naxxramas_hub_portal : public AreaTriggerScript
-{
-public:
-    at_naxxramas_hub_portal() : AreaTriggerScript("at_naxxramas_hub_portal") { }
-
-    bool OnTrigger(Player* player, AreaTrigger const* /*trigger*/) override
-    {
-        if (!player->IsAlive() || player->IsInCombat())
-            return false;
-
-        InstanceScript* instance = player->GetInstanceScript();
-        if (!instance)
-            return false;
-
-        if ((instance->GetBossState(BOSS_MAEXXNA)  != DONE) ||
-            (instance->GetBossState(BOSS_LOATHEB)  != DONE) ||
-            (instance->GetBossState(BOSS_THADDIUS) != DONE) ||
-            (instance->GetBossState(BOSS_HORSEMAN) != DONE))
-            return false;
-
-        player->TeleportTo(SapphironTeleportPos);
-        return true;
-    }
-};
-
-void AddSC_instance_naxxramas()
-{
-    RegisterInstanceScript(instance_naxxramas, NaxxramasMapId);
-    RegisterNaxxramasCreatureAI(npc_mr_bigglesworth);
-    RegisterNaxxramasCreatureAI(npc_living_poison);
-    RegisterNaxxramasCreatureAI(npc_naxxramas_trigger);
-    new at_naxxramas_hub_portal();
+    new GenericInstanceMapScript<instance_naxxramas_40>(NaxxramasScriptName, MAP_NAXXRAMAS);
 }

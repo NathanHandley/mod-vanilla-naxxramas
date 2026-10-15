@@ -11,7 +11,7 @@ SET
     `HealthModifier` = `HealthModifier` * @HEALTH_MULTIPLIER,
     `ArmorModifier`  = `ArmorModifier`  * @ARMOR_MULTIPLIER
 WHERE `entry` IN (
-    SELECT `id1`
+    SELECT `id`
     FROM `creature`
     WHERE `map` = 533 AND `spawnMask` = 4
 );

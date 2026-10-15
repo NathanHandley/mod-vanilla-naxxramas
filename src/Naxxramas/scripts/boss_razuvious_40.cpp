@@ -49,7 +49,7 @@ enum Events
 
 enum NPCs
 {
-    // NPC_DEATH_KNIGHT_UNDERSTUDY     = 351084,
+    // NPC_DEATH_KNIGHT_UNDERSTUDY     = 250084,
     NPC_TARGET_DUMMY                = 16211,
 };
 

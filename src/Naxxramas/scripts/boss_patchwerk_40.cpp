@@ -118,11 +118,11 @@ public:
                         std::list<Unit*> meleeRangeTargets;
                         Unit* finalTarget = nullptr;
                         uint8 counter = 0;
-                        auto i = me->GetThreatMgr().GetThreatList().begin();
-                        for (; i != me->GetThreatMgr().GetThreatList().end(); ++i, ++counter)
+                        std::vector<Unit*> mostHatedTargets;
+                        for (ThreatReference const* ref : me->GetThreatMgr().GetSortedThreatList())
                         {
                             // Gather all units with melee range
-                            Unit* target = (*i)->getTarget();
+                            Unit* target = ref->GetVictim();
                             if (me->IsWithinMeleeRange(target))
                             {
                                 meleeRangeTargets.push_back(target);
@@ -130,8 +130,14 @@ public:
                             // and add threat to most hated
                             if (counter < 3)
                             {
-                                me->AddThreat(target, 500.0f);
+                                mostHatedTargets.push_back(target);
                             }
+                            ++counter;
+                        }
+                        // Added after the scan: adding threat re-sorts the threat list being iterated
+                        for (Unit* target : mostHatedTargets)
+                        {
+                            me->AddThreat(target, 500.0f);
                         }
                         counter = 0;
                         std::list<Unit*, std::allocator<Unit*>>::iterator itr;

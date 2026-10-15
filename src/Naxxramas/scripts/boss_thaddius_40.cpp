@@ -253,7 +253,7 @@ public:
                         }
                     }
                     reviveTimer = 0;
-                    events.ScheduleEvent(EVENT_THADDIUS_INIT, 750);
+                    events.ScheduleEvent(EVENT_THADDIUS_INIT, 750ms);
                 }
                 return;
             }
@@ -404,19 +404,19 @@ public:
             }
             if (me->GetEntry() == NPC_STALAGG_40)
             {
-                events.ScheduleEvent(EVENT_MINION_POWER_SURGE, 10000);
+                events.ScheduleEvent(EVENT_MINION_POWER_SURGE, 10s);
                 Talk(SAY_STAL_AGGRO);
             }
             else
             {
-                events.ScheduleEvent(EVENT_MINION_STATIC_FIELD, 5000);
+                events.ScheduleEvent(EVENT_MINION_STATIC_FIELD, 5s);
                 Talk(SAY_FEUG_AGGRO);
             }
-            events.ScheduleEvent(EVENT_MINION_CHECK_DISTANCE, 5000);
+            events.ScheduleEvent(EVENT_MINION_CHECK_DISTANCE, 5s);
 
             if (me->GetEntry() == NPC_STALAGG_40) // This event needs synchronisation, called for stalagg only
             {
-                events.ScheduleEvent(EVENT_MINION_MAGNETIC_PULL, 20000);
+                events.ScheduleEvent(EVENT_MINION_MAGNETIC_PULL, 20s);
             }
 
             if (Creature* cr = me->GetInstanceScript()->GetCreature(DATA_THADDIUS_BOSS))
@@ -572,9 +572,9 @@ public:
 };
 
 // This will overwrite the declared 10 and 25 man pos_neg_charge to handle all versions of the spell script
-class spell_thaddius_pos_neg_charge : public SpellScript
+class spell_thaddius_pos_neg_charge_40 : public SpellScript
 {
-    PrepareSpellScript(spell_thaddius_pos_neg_charge);
+    PrepareSpellScript(spell_thaddius_pos_neg_charge_40);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -631,14 +631,14 @@ class spell_thaddius_pos_neg_charge : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_thaddius_pos_neg_charge::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thaddius_pos_neg_charge::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+        OnEffectHitTarget += SpellEffectFn(spell_thaddius_pos_neg_charge_40::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thaddius_pos_neg_charge_40::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
     }
 };
 
-class spell_thaddius_polarity_shift : public SpellScript
+class spell_thaddius_polarity_shift_40 : public SpellScript
 {
-    PrepareSpellScript(spell_thaddius_polarity_shift);
+    PrepareSpellScript(spell_thaddius_polarity_shift_40);
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
@@ -673,25 +673,25 @@ class spell_thaddius_polarity_shift : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_thaddius_polarity_shift::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        AfterCast += SpellCastFn(spell_thaddius_polarity_shift::HandleAfterCast);
+        OnEffectHitTarget += SpellEffectFn(spell_thaddius_polarity_shift_40::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        AfterCast += SpellCastFn(spell_thaddius_polarity_shift_40::HandleAfterCast);
     }
 };
 
-class npc_tesla : public CreatureScript
+class npc_tesla_40 : public CreatureScript
 {
 public:
-    npc_tesla() : CreatureScript("npc_tesla") { }
+    npc_tesla_40() : CreatureScript("npc_tesla") { }
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetNaxxramasAI<npc_teslaAI>(creature);
+        return GetNaxxramasAI<npc_tesla_40AI>(creature);
     }
 
-    struct npc_teslaAI : public ScriptedAI
+    struct npc_tesla_40AI : public ScriptedAI
     {
     public:
-        npc_teslaAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_tesla_40AI(Creature* creature) : ScriptedAI(creature) { }
         void EnterEvadeMode(EvadeReason /*why*/) override { } // never stop casting due to evade
         void UpdateAI(uint32 /*diff*/) override { } // never do anything unless told
         void JustEngagedWith(Unit* /*who*/) override { }
@@ -699,31 +699,11 @@ public:
     };
 };
 
-class at_thaddius_entrance : public AreaTriggerScript
-{
-public:
-    at_thaddius_entrance() : AreaTriggerScript("at_thaddius_entrance") { }
-
-    bool OnTrigger(Player* player, AreaTrigger const* /*areaTrigger*/) override
-    {
-        InstanceScript* instance = player->GetInstanceScript();
-        if (!instance || instance->GetData(DATA_THADDIUS_INTRO) || instance->GetBossState(BOSS_THADDIUS) == DONE)
-            return true;
-
-        if (Creature* thaddius = instance->GetCreature(DATA_THADDIUS_BOSS))
-            thaddius->AI()->Talk(SAY_GREET);
-
-        instance->SetData(DATA_THADDIUS_INTRO, 1);
-        return true;
-    }
-};
-
 void AddSC_boss_thaddius_40()
 {
     new boss_thaddius_40();
     new boss_thaddius_summon_40();
-//    new npc_tesla();
-    RegisterSpellScript(spell_thaddius_pos_neg_charge);
-    // RegisterSpellScript(spell_thaddius_polarity_shift);
-//    new at_thaddius_entrance();
+//    new npc_tesla_40();
+    RegisterSpellScriptWithArgs(spell_thaddius_pos_neg_charge_40, "spell_thaddius_pos_neg_charge");
+    // RegisterSpellScript(spell_thaddius_polarity_shift_40);
 }

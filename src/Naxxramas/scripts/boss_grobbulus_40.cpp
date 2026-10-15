@@ -102,7 +102,7 @@ public:
             events.ScheduleEvent(EVENT_POISON_CLOUD, 15s);
             events.ScheduleEvent(EVENT_MUTATING_INJECTION, 20s);
             events.ScheduleEvent(EVENT_SLIME_SPRAY, 10s);
-            events.ScheduleEvent(EVENT_BERSERK, RAID_MODE(720000, 540000, 540000, 540000));
+            events.ScheduleEvent(EVENT_BERSERK, RAID_MODE(12min, 9min, 9min, 9min));
         }
 
         void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
@@ -177,7 +177,7 @@ public:
                     {
                         me->CastSpell(target, SPELL_MUTATING_INJECTION, false);
                     }
-                    events.RepeatEvent(6000 + uint32(120 * me->GetHealthPct()));
+                    events.Repeat(Milliseconds(6000 + uint32(120 * me->GetHealthPct())));
                     break;
             }
             DoMeleeAttackIfReady();
@@ -233,9 +233,9 @@ public:
     };
 };
 
-class spell_grobbulus_poison : public SpellScript
+class spell_grobbulus_poison_40 : public SpellScript
 {
-    PrepareSpellScript(spell_grobbulus_poison);
+    PrepareSpellScript(spell_grobbulus_poison_40);
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
@@ -256,14 +256,14 @@ class spell_grobbulus_poison : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_grobbulus_poison::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_grobbulus_poison_40::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
 // This will overwrite the declared 10 and 25 man mutating injection to handle all versions of the spell script
-class spell_grobbulus_mutating_injection_aura : public AuraScript
+class spell_grobbulus_mutating_injection_aura_40 : public AuraScript
 {
-    PrepareAuraScript(spell_grobbulus_mutating_injection_aura);
+    PrepareAuraScript(spell_grobbulus_mutating_injection_aura_40);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -294,7 +294,7 @@ class spell_grobbulus_mutating_injection_aura : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_grobbulus_mutating_injection_aura::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_grobbulus_mutating_injection_aura_40::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -302,6 +302,6 @@ void AddSC_boss_grobbulus_40()
 {
     new boss_grobbulus_40();
     new boss_grobbulus_poison_cloud_40();
-    // RegisterSpellScript(spell_grobbulus_poison);
-    RegisterSpellScript(spell_grobbulus_mutating_injection_aura);
+    // RegisterSpellScript(spell_grobbulus_poison_40);
+    RegisterSpellScriptWithArgs(spell_grobbulus_mutating_injection_aura_40, "spell_grobbulus_mutating_injection_aura");
 }
