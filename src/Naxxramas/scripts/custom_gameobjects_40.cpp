@@ -3,6 +3,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "GameObjectAI.h"
+#include "Group.h"
 #include "Player.h"
 #include "naxxramas.h"
 #include "VanillaNaxxramas.h"
@@ -40,7 +41,11 @@ public:
         if ((!sVanillaNaxxramas->requireNaxxStrath || player->GetQuestStatus(NAXX40_ENTRANCE_FLAG) == QUEST_STATUS_REWARDED)
             && (!sVanillaNaxxramas->requireAttunement || isAttuned(player)))
         {
-            player->SetRaidDifficulty(RAID_DIFFICULTY_10MAN_HEROIC);
+            // new instances take the group's raid difficulty when the player is grouped
+            if (Group* group = player->GetGroup())
+                group->SetRaidDifficulty(RAID_DIFFICULTY_10MAN_HEROIC);
+            else
+                player->SetRaidDifficulty(RAID_DIFFICULTY_10MAN_HEROIC);
             player->TeleportTo(533, 3005.51f, -3434.64f, 304.195f, 6.2831f);
         }
         return true;

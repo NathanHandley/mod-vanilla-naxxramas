@@ -1,3 +1,4 @@
+#include "Group.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -38,7 +39,11 @@ public:
                 {
                     if (!sVanillaNaxxramas->requireAttunement || isAttuned(player))
                     {
-                        player->SetRaidDifficulty(RAID_DIFFICULTY_10MAN_HEROIC);
+                        // new instances take the group's raid difficulty when the player is grouped
+                        if (Group* group = player->GetGroup())
+                            group->SetRaidDifficulty(RAID_DIFFICULTY_10MAN_HEROIC);
+                        else
+                            player->SetRaidDifficulty(RAID_DIFFICULTY_10MAN_HEROIC);
                         player->TeleportTo(533, 3005.51f, -3434.64f, 304.195f, 6.2831f);
                     }
                 }
