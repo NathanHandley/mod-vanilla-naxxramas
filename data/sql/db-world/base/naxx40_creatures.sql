@@ -5470,6 +5470,12 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (29941, 0, 0, 'Sir, student requests that you beat him for his lack of understanding!', 12, 0, 100, 1, 0, 0, 13140, 0, 'Death Knight Understudy SAY_BEAT_ME'),
 (29941, 0, 1, 'I am unworthy, master!', 12, 0, 100, 1, 0, 0, 13138, 0, 'Death Knight Understudy SAY_UNWORTHY'),
 (29941, 0, 2, 'Student is worthless, master! Student apologizes for his deficiency!', 12, 0, 100, 1, 0, 0, 13137, 0, 'Death Knight Understudy SAY_WORTHLESS');
+-- Naxx40 Deathknight Understudy (boss_razuvious_minion_40 talks group 0 too)
+DELETE FROM `creature_text` WHERE `CreatureID` = 250084;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(250084, 0, 0, 'Sir, student requests that you beat him for his lack of understanding!', 12, 0, 100, 1, 0, 0, 13140, 0, 'Deathknight Understudy (Naxx40) SAY_BEAT_ME'),
+(250084, 0, 1, 'I am unworthy, master!', 12, 0, 100, 1, 0, 0, 13138, 0, 'Deathknight Understudy (Naxx40) SAY_UNWORTHY'),
+(250084, 0, 2, 'Student is worthless, master! Student apologizes for his deficiency!', 12, 0, 100, 1, 0, 0, 13137, 0, 'Deathknight Understudy (Naxx40) SAY_WORTHLESS');
 
 -- Gothik Visuals
 -- re-do spawn locations for triggers
